@@ -1,0 +1,6 @@
+jdk:
+  - openjdk17
+install:
+  - FILE="simplejavable.jar"
+  - curl -sL https://github.com/simpleble/simpleble/releases/download/v0.12.1/simplejavable-v0.12.1.jar -o $FILE
+  - mvn install:install-file -Dfile=$FILE -DgroupId=com.github.tonydewitt -DartifactId=simpleble -Dversion=v0.12.1-jitpack -Dpackaging=jar
