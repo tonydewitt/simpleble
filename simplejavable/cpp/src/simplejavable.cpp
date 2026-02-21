@@ -167,28 +167,52 @@ extern "C" JNIEXPORT jint JNICALL Java_org_simplejavable_Peripheral_nativePeriph
                                                                                                 jlong adapter_id,
                                                                                                 jlong peripheral_id) {
     PeripheralWrapper* peripheral_wrapper = Cache::get().getPeripheral(adapter_id, peripheral_id);
-    return peripheral_wrapper->get().address_type();
+    try {
+        return peripheral_wrapper->get().address_type();
+    } catch (const std::exception& e) {
+        jclass exClass = env->FindClass("java/lang/UnsupportedOperationException");
+        if (exClass != nullptr) env->ThrowNew(exClass, e.what());
+        return 0;
+    }
 }
 
 extern "C" JNIEXPORT jint JNICALL Java_org_simplejavable_Peripheral_nativePeripheralRssi(JNIEnv* env, jobject thiz,
                                                                                          jlong adapter_id,
                                                                                          jlong peripheral_id) {
     PeripheralWrapper* peripheral_wrapper = Cache::get().getPeripheral(adapter_id, peripheral_id);
-    return peripheral_wrapper->get().rssi();
+    try {
+        return peripheral_wrapper->get().rssi();
+    } catch (const std::exception& e) {
+        jclass exClass = env->FindClass("java/lang/UnsupportedOperationException");
+        if (exClass != nullptr) env->ThrowNew(exClass, e.what());
+        return 0;
+    }
 }
 
 extern "C" JNIEXPORT jint JNICALL Java_org_simplejavable_Peripheral_nativePeripheralTxPower(JNIEnv* env, jobject thiz,
                                                                                             jlong adapter_id,
                                                                                             jlong peripheral_id) {
     PeripheralWrapper* peripheral_wrapper = Cache::get().getPeripheral(adapter_id, peripheral_id);
-    return peripheral_wrapper->get().tx_power();
+    try {
+        return peripheral_wrapper->get().tx_power();
+    } catch (const std::exception& e) {
+        jclass exClass = env->FindClass("java/lang/UnsupportedOperationException");
+        if (exClass != nullptr) env->ThrowNew(exClass, e.what());
+        return 0;
+    }
 }
 
 extern "C" JNIEXPORT jint JNICALL Java_org_simplejavable_Peripheral_nativePeripheralMtu(JNIEnv* env, jobject thiz,
                                                                                         jlong adapter_id,
                                                                                         jlong peripheral_id) {
     PeripheralWrapper* peripheral_wrapper = Cache::get().getPeripheral(adapter_id, peripheral_id);
-    return peripheral_wrapper->get().mtu();
+    try {
+        return peripheral_wrapper->get().mtu();
+    } catch (const std::exception& e) {
+        jclass exClass = env->FindClass("java/lang/UnsupportedOperationException");
+        if (exClass != nullptr) env->ThrowNew(exClass, e.what());
+        return 0;
+    }
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_simplejavable_Peripheral_nativePeripheralConnect(JNIEnv* env, jobject thiz,
@@ -252,7 +276,13 @@ extern "C" JNIEXPORT jboolean JNICALL Java_org_simplejavable_Peripheral_nativePe
 extern "C" JNIEXPORT jboolean JNICALL Java_org_simplejavable_Peripheral_nativePeripheralIsConnectable(
     JNIEnv* env, jobject thiz, jlong adapter_id, jlong peripheral_id) {
     PeripheralWrapper* peripheral_wrapper = Cache::get().getPeripheral(adapter_id, peripheral_id);
-    return peripheral_wrapper->get().is_connectable();
+    try {
+        return peripheral_wrapper->get().is_connectable();
+    } catch (const std::exception& e) {
+        jclass exClass = env->FindClass("java/lang/UnsupportedOperationException");
+        if (exClass != nullptr) env->ThrowNew(exClass, e.what());
+        return JNI_FALSE;
+    }
 }
 
 extern "C" JNIEXPORT jboolean JNICALL Java_org_simplejavable_Peripheral_nativePeripheralIsPaired(JNIEnv* env,
@@ -260,7 +290,13 @@ extern "C" JNIEXPORT jboolean JNICALL Java_org_simplejavable_Peripheral_nativePe
                                                                                                  jlong adapter_id,
                                                                                                  jlong peripheral_id) {
     PeripheralWrapper* peripheral_wrapper = Cache::get().getPeripheral(adapter_id, peripheral_id);
-    return peripheral_wrapper->get().is_paired();
+    try {
+        return peripheral_wrapper->get().is_paired();
+    } catch (const std::exception& e) {
+        jclass exClass = env->FindClass("java/lang/UnsupportedOperationException");
+        if (exClass != nullptr) env->ThrowNew(exClass, e.what());
+        return JNI_FALSE;
+    }
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_simplejavable_Peripheral_nativePeripheralUnpair(JNIEnv* env, jobject thiz,
