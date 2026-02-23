@@ -11,11 +11,11 @@ repositories {
     mavenCentral()
 }
 
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
-    }
-}
+// java {
+//     toolchain {
+//         languageVersion.set(JavaLanguageVersion.of(17))
+//     }
+// }
 
 // Native library acquisition options
 val nativeLibPath: String? by project // -PnativeLibPath=...

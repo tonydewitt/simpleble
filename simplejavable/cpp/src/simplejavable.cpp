@@ -1,13 +1,15 @@
 #include <jni.h>
+#include <iostream>
+using std::cout;
 #include <string>
 
-#include "fmt/core.h"
 #include <simpleble/Logging.h>
 #include <simpleble/SimpleBLE.h>
 #include <map>
 #include <memory>
 #include <unordered_map>
 #include <vector>
+#include "fmt/core.h"
 
 #include "core/AdapterWrapper.h"
 #include "core/Cache.h"
@@ -15,14 +17,14 @@
 #include "java/lang/HashMap.h"
 #include "java/lang/Integer.h"
 #include "java/lang/Iterator.h"
-#include "simplejni/Common.hpp"
-#include "simplejni/Registry.hpp"
 #include "org/simplejavable/AdapterCallback.h"
 #include "org/simplejavable/Characteristic.h"
 #include "org/simplejavable/DataCallback.h"
 #include "org/simplejavable/Descriptor.h"
 #include "org/simplejavable/PeripheralCallback.h"
 #include "org/simplejavable/Service.h"
+#include "simplejni/Common.hpp"
+#include "simplejni/Registry.hpp"
 
 using namespace SimpleJNI;
 
@@ -80,59 +82,98 @@ extern "C" JNIEXPORT jstring JNICALL Java_org_simplejavable_Adapter_nativeAdapte
 extern "C" JNIEXPORT void JNICALL Java_org_simplejavable_Adapter_nativeAdapterScanStart(JNIEnv* env, jobject thiz,
                                                                                         jlong adapter_id) {
     AdapterWrapper* adapter_wrapper = Cache::get().getAdapter(adapter_id);
-    adapter_wrapper->get().scan_start();
+    try {
+        adapter_wrapper->get().scan_start();
+    } catch (const std::exception& e) {
+        std::cout << "Thowing for scan start";
+        jclass exClass = env->FindClass("java/lang/UnsupportedOperationException");
+        if (exClass != nullptr) env->ThrowNew(exClass, e.what());
+    }
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_simplejavable_Adapter_nativeAdapterScanStop(JNIEnv* env, jobject thiz,
                                                                                        jlong adapter_id) {
     AdapterWrapper* adapter_wrapper = Cache::get().getAdapter(adapter_id);
-    adapter_wrapper->get().scan_stop();
+    try {
+        adapter_wrapper->get().scan_stop();
+    } catch (const std::exception& e) {
+        std::cout << "Thowing for scan stop";
+        jclass exClass = env->FindClass("java/lang/UnsupportedOperationException");
+        if (exClass != nullptr) env->ThrowNew(exClass, e.what());
+    }
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_simplejavable_Adapter_nativeAdapterScanFor(JNIEnv* env, jobject thiz,
                                                                                       jlong adapter_id, jint timeout) {
     AdapterWrapper* adapter_wrapper = Cache::get().getAdapter(adapter_id);
-    adapter_wrapper->get().scan_for(timeout);
+    try {
+        adapter_wrapper->get().scan_for(timeout);
+    } catch (const std::exception& e) {
+        std::cout << "Thowing for scan for";
+        jclass exClass = env->FindClass("java/lang/UnsupportedOperationException");
+        if (exClass != nullptr) env->ThrowNew(exClass, e.what());
+    }
 }
 
 extern "C" JNIEXPORT jboolean JNICALL Java_org_simplejavable_Adapter_nativeAdapterScanIsActive(JNIEnv* env,
                                                                                                jobject thiz,
                                                                                                jlong adapter_id) {
     AdapterWrapper* adapter_wrapper = Cache::get().getAdapter(adapter_id);
-    return adapter_wrapper->get().scan_is_active();
+    try {
+        return adapter_wrapper->get().scan_is_active();
+    } catch (const std::exception& e) {
+        std::cout << "Thowing for scan is active";
+        jclass exClass = env->FindClass("java/lang/UnsupportedOperationException");
+        if (exClass != nullptr) env->ThrowNew(exClass, e.what());
+        return JNI_FALSE;
+    }
 }
 
 extern "C" JNIEXPORT jlongArray JNICALL Java_org_simplejavable_Adapter_nativeAdapterScanGetResults(JNIEnv* env,
                                                                                                    jobject thiz,
                                                                                                    jlong adapter_id) {
     AdapterWrapper* adapter_wrapper = Cache::get().getAdapter(adapter_id);
-    std::vector<SimpleBLE::Peripheral> peripherals = adapter_wrapper->get().scan_get_results();
+    try {
+        std::vector<SimpleBLE::Peripheral> peripherals = adapter_wrapper->get().scan_get_results();
 
-    std::vector<int64_t> peripheral_hashes;
-    for (SimpleBLE::Peripheral& peripheral : peripherals) {
-        PeripheralWrapper peripheral_wrapper(peripheral);
-        peripheral_hashes.push_back(peripheral_wrapper.getHash());
-        Cache::get().addPeripheral(adapter_wrapper->getHash(), peripheral_wrapper.getHash(), peripheral_wrapper);
+        std::vector<int64_t> peripheral_hashes;
+        for (SimpleBLE::Peripheral& peripheral : peripherals) {
+            PeripheralWrapper peripheral_wrapper(peripheral);
+            peripheral_hashes.push_back(peripheral_wrapper.getHash());
+            Cache::get().addPeripheral(adapter_wrapper->getHash(), peripheral_wrapper.getHash(), peripheral_wrapper);
+        }
+
+        LongArray<ReleasableLocalRef> peripheral_hashes_array(peripheral_hashes);
+        return peripheral_hashes_array.release();
+    } catch (const std::exception& e) {
+        std::cout << "Thowing for scan get results";
+        jclass exClass = env->FindClass("java/lang/UnsupportedOperationException");
+        if (exClass != nullptr) env->ThrowNew(exClass, e.what());
+        return nullptr;
     }
-
-    LongArray<ReleasableLocalRef> peripheral_hashes_array(peripheral_hashes);
-    return peripheral_hashes_array.release();
 }
 
 extern "C" JNIEXPORT jlongArray JNICALL
 Java_org_simplejavable_Adapter_nativeAdapterGetPairedPeripherals(JNIEnv* env, jobject thiz, jlong adapter_id) {
     AdapterWrapper* adapter_wrapper = Cache::get().getAdapter(adapter_id);
-    std::vector<SimpleBLE::Peripheral> peripherals = adapter_wrapper->get().get_paired_peripherals();
+    try {
+        std::vector<SimpleBLE::Peripheral> peripherals = adapter_wrapper->get().get_paired_peripherals();
 
-    std::vector<int64_t> peripheral_hashes;
-    for (SimpleBLE::Peripheral& peripheral : peripherals) {
-        PeripheralWrapper peripheral_wrapper(peripheral);
-        peripheral_hashes.push_back(peripheral_wrapper.getHash());
-        Cache::get().addPeripheral(adapter_wrapper->getHash(), peripheral_wrapper.getHash(), peripheral_wrapper);
+        std::vector<int64_t> peripheral_hashes;
+        for (SimpleBLE::Peripheral& peripheral : peripherals) {
+            PeripheralWrapper peripheral_wrapper(peripheral);
+            peripheral_hashes.push_back(peripheral_wrapper.getHash());
+            Cache::get().addPeripheral(adapter_wrapper->getHash(), peripheral_wrapper.getHash(), peripheral_wrapper);
+        }
+
+        LongArray<ReleasableLocalRef> peripheral_hashes_array(peripheral_hashes);
+        return peripheral_hashes_array.release();
+    } catch (const std::exception& e) {
+        std::cout << "Thowing for get paired peripherals";
+        jclass exClass = env->FindClass("java/lang/UnsupportedOperationException");
+        if (exClass != nullptr) env->ThrowNew(exClass, e.what());
+        return nullptr;
     }
-
-    LongArray<ReleasableLocalRef> peripheral_hashes_array(peripheral_hashes);
-    return peripheral_hashes_array.release();
 }
 
 // PERIPHERAL
@@ -170,6 +211,7 @@ extern "C" JNIEXPORT jint JNICALL Java_org_simplejavable_Peripheral_nativePeriph
     try {
         return peripheral_wrapper->get().address_type();
     } catch (const std::exception& e) {
+        std::cout << "Thowing for address type";
         jclass exClass = env->FindClass("java/lang/UnsupportedOperationException");
         if (exClass != nullptr) env->ThrowNew(exClass, e.what());
         return 0;
@@ -183,6 +225,7 @@ extern "C" JNIEXPORT jint JNICALL Java_org_simplejavable_Peripheral_nativePeriph
     try {
         return peripheral_wrapper->get().rssi();
     } catch (const std::exception& e) {
+        std::cout << "Thowing for rssi";
         jclass exClass = env->FindClass("java/lang/UnsupportedOperationException");
         if (exClass != nullptr) env->ThrowNew(exClass, e.what());
         return 0;
@@ -196,6 +239,7 @@ extern "C" JNIEXPORT jint JNICALL Java_org_simplejavable_Peripheral_nativePeriph
     try {
         return peripheral_wrapper->get().tx_power();
     } catch (const std::exception& e) {
+        std::cout << "Thowing for tx power";
         jclass exClass = env->FindClass("java/lang/UnsupportedOperationException");
         if (exClass != nullptr) env->ThrowNew(exClass, e.what());
         return 0;
@@ -209,6 +253,7 @@ extern "C" JNIEXPORT jint JNICALL Java_org_simplejavable_Peripheral_nativePeriph
     try {
         return peripheral_wrapper->get().mtu();
     } catch (const std::exception& e) {
+        std::cout << "Thowing for mtu";
         jclass exClass = env->FindClass("java/lang/UnsupportedOperationException");
         if (exClass != nullptr) env->ThrowNew(exClass, e.what());
         return 0;
@@ -279,6 +324,7 @@ extern "C" JNIEXPORT jboolean JNICALL Java_org_simplejavable_Peripheral_nativePe
     try {
         return peripheral_wrapper->get().is_connectable();
     } catch (const std::exception& e) {
+        std::cout << "Thowing for is connectable";
         jclass exClass = env->FindClass("java/lang/UnsupportedOperationException");
         if (exClass != nullptr) env->ThrowNew(exClass, e.what());
         return JNI_FALSE;
@@ -293,6 +339,7 @@ extern "C" JNIEXPORT jboolean JNICALL Java_org_simplejavable_Peripheral_nativePe
     try {
         return peripheral_wrapper->get().is_paired();
     } catch (const std::exception& e) {
+        std::cout << "Thowing for is paired";
         jclass exClass = env->FindClass("java/lang/UnsupportedOperationException");
         if (exClass != nullptr) env->ThrowNew(exClass, e.what());
         return JNI_FALSE;
